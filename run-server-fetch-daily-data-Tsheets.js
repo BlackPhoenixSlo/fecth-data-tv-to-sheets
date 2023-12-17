@@ -12,6 +12,9 @@ const certificate = "v1:Bk/ZvaAmuR48QoWNbGrOeTdM9CTL+CUngWzYXUF0jvQ=";
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const markets = ['BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'BINANCE:ETHBTC'];
 
+const sheettitle2 = 'CombinedMarketData';
+const indicator_name = 'USER;fa4099d3a752474a95e79b2d9186b804';
+
 async function getAuthToken() {
     const auth = new google.auth.GoogleAuth({ scopes: SCOPES });
     const authToken = await auth.getClient();
@@ -29,7 +32,7 @@ async function fetchData(market, timeframe) {
     console.log("fetchdata ... timeframe", timeframe)
 
     return new Promise((resolve, reject) => {
-        TradingView.getIndicator('USER;fa4099d3a752474a95e79b2d9186b804').then((indic) => {
+        TradingView.getIndicator(indicator_name).then((indic) => {
             const study = new chart.Study(indic);
             study.onUpdate(() => {
                 console.log("data ... timeframe", study.periods[0].Plot_5)
@@ -106,7 +109,7 @@ async function exportAllMarketData() {
 
       const sheetData = [headers].concat([values]); // Correct structure: array of arrays
 
-      const sheetTitle = 'CombinedMarketData';
+      const sheetTitle = sheettitle2;
       await appendAllDataFromJson_big(auth, spreadsheetId, sheetTitle, sheetData);
 
       console.log('Data from all markets exported successfully to Google Sheets with correct headers.');
@@ -336,36 +339,20 @@ return data2
 // });
 // console.log('Task taken in a count at x UTC');
 
-const express = require('express');
-const app = express();
-const { readFile } = require('fs').promises;
-
-app.use(express.static('public'));
+async function scheduledTask() {
+try {
 
 
-const path = require('path');
+            console.log('Task started at x UTC');
+            const data = await exportAllMarketDataWithMarketCap();
+            console.log("Scheduled Task Completed. Data:", data);
+            // Additional logic if needed
+    
+            console.log('Task end at x UTC');
+    
+        } catch (error) {
+            console.error('Error in scheduled task:', error);
+        }
+}
 
-app.get('/', async (request, response) => {
-    response.send(await readFile(path.join(__dirname, 'public', 'home.html'), 'utf8'));
-});
-
-
-
-app.get('/runTask', async (req, res) => {
-    try {
-        console.log('HTTP request received at /runTask');
-        const data = await calculatePositions();
-        console.log("HTTP Task Completed. Data:", data);
-
-        // Send response back to client
-        res.json(data);
-    } catch (error) {
-        console.error('Error in HTTP task:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-
-app.use(express.static('public'));
-
-app.listen(process.env.PORT || 3000, () => console.log(`App available on http://localhost:3000`))
+scheduledTask()
