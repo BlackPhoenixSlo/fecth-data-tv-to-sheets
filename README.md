@@ -1,3 +1,8 @@
+I use this bot to drop all of the info to google sheet:
+https://docs.google.com/spreadsheets/d/1SZwDpZO7rvLrijKq9dtgdOP4tffr-KzhQB1JsPXBj8I/edit?usp=sharing
+
+
+
 # how to use js to run your bot
 
 
